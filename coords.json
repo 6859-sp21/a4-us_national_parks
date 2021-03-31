@@ -1,0 +1,824 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Acadia NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -68.2730914,
+          44.32999977
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Arches NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -109.6163243,
+          38.72739199
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Badlands NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -102.32611,
+          43.84858577
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Big Bend NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.284019,
+          29.24904868
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Biscayne NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.21184882,
+          25.47758157
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Black Canyon of the Gunnison NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -107.7404871,
+          38.57257112
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Bryce Canyon NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -112.173852,
+          37.59049124
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Canyonlands NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -109.8516508,
+          38.22511341
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Capitol Reef NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -111.1256085,
+          38.09373092
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Carlsbad Caverns NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -104.547359,
+          32.12654441
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Channel Islands NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.7744465,
+          34.01470982
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Congaree NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.78406108,
+          33.79025024
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Crater Lake NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.1613392,
+          42.86627777
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Cuyahoga Valley NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -81.5607061,
+          41.27328889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Death Valley NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -117.0881272,
+          36.49657476
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Denali NP & PRES"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -151.1425958,
+          63.07962068
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Dry Tortugas NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -82.87306361,
+          24.62841537
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Everglades NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -80.9072381,
+          25.28540886
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Gates of the Arctic NP & PRES"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -152.8542052,
+          67.86211736
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Gateway Arch NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -90.18467749,
+          38.62722171
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Glacier Bay NP & PRES"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -136.9032408,
+          58.65728167
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Glacier NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -113.7988242,
+          48.74913227
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Grand Canyon NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -112.0920414,
+          36.09725558
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Grand Teton NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -110.6851055,
+          43.77928937
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Great Basin NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -114.2588859,
+          38.92875259
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Great Sand Dunes NP & PRES"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.6295452,
+          37.72724116
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Great Smoky Mountains NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -83.55905166,
+          35.59801732
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Guadalupe Mountains NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -104.8672842,
+          31.91817822
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Haleakala NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -156.1447613,
+          20.72543967
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Hawaii Volcanoes NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -155.19936,
+          19.38248492
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Hot Springs NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -93.04105758,
+          34.52159348
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Indiana Dunes NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -87.07070732,
+          41.65050537
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Isle Royale NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -88.90757085,
+          47.99210694
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Joshua Tree NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -115.8828161,
+          33.85761642
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Katmai NP & PRES"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -155.1271511,
+          58.5921019
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Kenai Fjords NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -150.0774513,
+          59.83945567
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Kings Canyon NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.5371599,
+          36.87982672
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Kobuk Valley NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -159.0460373,
+          67.31508952
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Lake Clark NP & PRES"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -154.2756858,
+          60.35974319
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Lassen Volcanic NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.4070943,
+          40.49819352
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Mammoth Cave NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -86.14934628,
+          37.18101909
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Mesa Verde NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -108.4604869,
+          37.23095967
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Mount Rainier NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.7296188,
+          46.87765682
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "National Park of American Samoa"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -170.6817973,
+          -14.25951167
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "New River Gorge NP & PRES"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -81.01916025,
+          37.87793505
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "North Cascades NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.2942811,
+          48.7491719
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Olympic NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -123.6420654,
+          47.76980198
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Petrified Forest NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -109.7864971,
+          34.99882002
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Pinnacles NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.184851,
+          36.49029557
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Redwood NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -124.0134101,
+          41.22840507
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Rocky Mountain NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -105.6866286,
+          40.3447103
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Saguaro NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -111.1569755,
+          32.28565328
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Sequoia NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.5465668,
+          36.49089344
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Shenandoah NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -78.48707651,
+          38.45065298
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Theodore Roosevelt NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.4879151,
+          46.96733543
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Virgin Islands NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.4879151,
+          46.96733543
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Voyageurs NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -64.7417931,
+          18.34574052
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "White Sands NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -106.3256343,
+          32.78734442
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Wind Cave NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.4346116,
+          43.57119101
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Wrangell-St. Elias NP & PRES"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -142.9123452,
+          61.72372643
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Yellowstone NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -110.6409392,
+          44.41097395
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Yosemite NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.5488629,
+          37.86238562
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "park_name": "Zion NP"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -113.039494,
+          37.28342075
+        ]
+      }
+    }
+  ]
+}
