@@ -1,3 +1,36 @@
-<h1>hello world</h1>
+<html>
+   <head>
+        <title>D3 Map Maybe Hopefully</title>
+        <meta charset="utf-8"> 
+        <script type = "text/javascript" src = "https://d3js.org/d3.v4.min.js"></script>
+        <script src="http://d3js.org/topojson.v0.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.js"></script>
+        <style>
+        </style>
+   </head>
+  <body>
+       <h1>Do we think I can make a map?</h1>
+       <script type = "text/javascript">
+            var width = 900;
+            var height = 500;
 
-<h2>Does this work?</h2>
+            var svg = d3.select("body")
+            .append("svg")
+            .attr("width",width)  // apply width,height to svg
+            .attr("height",height);
+
+            var projection = d3.geoMercator();
+            var path = d3.geoPath().projection(projection);
+
+            d3.json("./coords.json", function(err, geojson) { 
+                projection.fitSize([width,height],geojson); // adjust the projection to the features
+                svg.append("path").attr("d", path(geojson)); // draw the features
+            })
+
+            /*d3.json("coords.json", function(data) {
+                console.log(data);
+            });*/
+
+       </script>
+   </body>
+</html>
