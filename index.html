@@ -1,36 +1,364 @@
 <html>
    <head>
-        <title>D3 Map Maybe Hopefully</title>
-        <meta charset="utf-8"> 
-        <script type = "text/javascript" src = "https://d3js.org/d3.v4.min.js"></script>
-        <script src="http://d3js.org/topojson.v0.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.js"></script>
-        <style>
-        </style>
+      <head>
+         <title>D3 Map Maybe Hopefully</title>
+         <meta charset="utf-8"> 
+         <script type = "text/javascript" src = "https://d3js.org/d3.v4.min.js"></script>
+         <script src="https://unpkg.com/topojson-client@3"></script>
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.js"></script>
+         <style>
+             div.tooltip {
+                 position: absolute;
+                 text-align: center;
+                 width: 408px;
+                 height: 271px;
+                 padding: 0px;
+                 font: 14px sans-serif;
+                 font-weight: 900;
+                 /* background: lightsteelblue; */
+                 border: 0px;
+                 border-radius: 0px;
+                 pointer-events: none;
+             }
+
+             div.tooltip2 {
+                 position: absolute;
+                 text-align: center;
+                 width: auto;
+                 height: auto;
+                 padding: 2px;
+                 font: 14px sans-serif;
+                 font-weight: 200;
+                 /* background: lightsteelblue; */
+                 border: 0px;
+                 border-radius: 0px;
+                 pointer-events: none;
+             }
+
+             div.bargraph_bar {
+                 position: absolute;
+                 text-align: center;
+                 padding: 2px;
+                 font: 14px sans-serif;
+                 font-weight: 200;
+                 background: black;
+                 border: 0px;
+                 border-radius: 0px;
+                 pointer-events: none;
+             }
+
+             .boundary {
+                fill: none;
+                stroke:black;
+                stroke-linejoin: round;
+             }
+
+             .state.ID { fill: #ddc; }
+         </style>
    </head>
-  <body>
-       <h1>I made a map! Sort of...</h1>
-       <script type = "text/javascript">
-            var width = 900;
-            var height = 500;
 
-            var svg = d3.select("body")
-            .append("svg")
-            .attr("width",width)  // apply width,height to svg
-            .attr("height",height);
+   <body>
+      <h1>This was 12 hours of work...</h1>
+      <script src="https://unpkg.com/topojson@3"></script>
+      <script>
+         //load data
+         //d3.json("https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/data_temp.topojson", function (error, data) {
+            //data = data;
 
-            var projection = d3.geoMercator();
-            var path = d3.geoPath().projection(projection);
+            /*
+            TO DO:
+            X-ish replace points with emojis or at least color code
+            X- add pics to tooltips
+            half-X two bar graphs and then linkage--plus add state abbr to tooltip
+            change projection to get territories on screen
+            background, obviously
+            Plot axes
+            X-Smartly position picture tooltips
+            Sort bar graph(s)
+            Sourcing
+            Website URLs?
+            */
+            
+            var width = 960;
+            var height = 400;
+            const width_histo = 960 - 100,
+               height_histo = 150,
+               bargraph_start = 0;
+               margin_histo = {top: 10, right: 0, bottom: 20, left: 10}
+               bar_width = width_histo / 63.
+               scale_factor = 0.3;
 
-            d3.json("./coords.json", function(err, geojson) { 
-                projection.fitSize([width,height],geojson); // adjust the projection to the features
-                svg.append("path").attr("d", path(geojson)); // draw the features
-            })
+            const scaleylog = d3.scaleLog().domain([0.001,6800]).range([0,150]);
 
-            /*d3.json("coords.json", function(data) {
-                console.log(data);
-            });*/
+            var tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
 
-       </script>
+            var tooltip2 = d3.select("body").append("div")
+            .attr("class", "tooltip2")
+            .style("opacity", 0);
+
+            var projection = d3.geoAlbersUsa().scale(800).translate([0, 0])
+            //var projection = d3.geoMercator()
+            .translate([width/2, height/2]);
+
+            var path = d3.geoPath()
+            .projection(projection)
+
+            var svg = d3.select("body").append("svg")
+               .attr("width", width)
+               .attr("height", height);
+            
+            d3.json("https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/states.topojson", function(error, us) {
+               //console.log(uk);
+               //parks = topojson.feature(uk, uk.objects.collection).features
+               //console.log(parks);
+               data = topojson.feature(us,us.objects.collection).features
+
+               country = svg.selectAll(".collection").data(data)
+               .enter().append("path")
+               .attr("fill", "#cefdce")
+               .attr("class", function(d) { return "state " + d.id; })
+               .attr("d",path)
+
+               svg.append("path")
+               .datum(topojson.mesh(us,us.objects.collection))
+               .attr("d",path)
+               .attr("class", "boundary");
+            });
+
+
+            d3.json("https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/data_temp.topojson", function(error, uk) {
+               //console.log(uk);
+               //parks = topojson.feature(uk, uk.objects.collection).features
+               //console.log(parks);
+               data = topojson.feature(uk,uk.objects.collection).features
+
+               points = svg.selectAll(".collection").data(data)
+               .enter().append("path")
+               .attr("id", function(d) {
+                  return d.properties.park_name;
+               })
+               .attr("park_name", function(d) {
+                  return d.properties.park_name;
+               })
+               .attr('density', function(d) {
+                  return d.properties.density_2020;
+               })
+               .attr("visitors", function(d) {
+                  return d.properties.visitors_2020;
+               })
+               .attr('park_env', function(d) {
+                  return d.properties.park_env;
+               })
+               .attr('emoji', function(d) {
+                  if (d.properties.park_env == 'desert') {
+                     return('https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/desert.png');
+                  } else if (d.properties.park_env == 'water') {
+                     return('https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/water.png');
+                  } else if (d.properties.park_env == 'tree') {
+                     return('https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/tree.png');
+                  } else {
+                     return('https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/mountain.png');
+                  }
+               })
+               .attr('font-color', function(d) {
+                  return d.properties.font_coolor;
+               })
+               .attr('img_name', function(d) {
+                  if (d.properties.park_name == 'Acadia NP' || d.properties.park_name == 'Badlands NP' || d.properties.park_name == 'Channel Islands NP'
+                  || d.properties.park_name == 'Cuyahoga Valley NP' || d.properties.park_name == 'Dry Tortugas NP' || d.properties.park_name == 'Katmai NP & PRES') {
+                     var string = d.properties.park_name + ".JPG";
+                  } else {
+                     var string = d.properties.park_name + ".jpg";
+                  }
+                  var string = string.replace(/ /gi, "%20");
+                  return string;
+               })
+               //.attr('selected','false')
+               .attr('rect_height', function(d) {
+                  return scaleylog(Number(d.properties.density_2020) + 0.002);
+               })
+               .attr('rect_width',"10")
+               .attr('rect_translate_x', function (d,i) {
+                  return i * bar_width;
+               })
+               .attr('rect_translate_y', function(d) {
+                  return (150 - scaleylog(Number(d.properties.density_2020) + 0.002));
+               })
+               .attr("d",path);
+
+               
+               //.attr("visits", function(d) {
+               //   return d.properties.visitors_2020;
+               //})
+               
+
+               /*function pngMarker() {
+                  d3.selectAll("path").append("image").attr("xlink:href", "https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/water.png")
+                  .attr("height", 18).attr("width", 18)
+                  .attr("x", -9).attr("y", -9)
+               };*/
+
+               //console.log(points);
+               points
+               .attr('fill', function(d) {
+                  if (d.properties.park_env == 'desert') {
+                     return "yellow";
+                  } else if (d.properties.park_env == 'mountain') {
+                     return "gray";
+                  } else if (d.properties.park_env == 'water') {
+                     return "blue";
+                  } else {
+                     return "green";
+                  }
+               });
+
+               //points.append('svg').append('rect').attr('x', '50px').attr('y','50px').attr('width','100px').attr('height','100px').attr('fill','yellow');
+
+               points
+               .on("mouseenter", function(event, d) {
+                  var url = 'https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/' + d3.select(this).attr('img_name')
+                  d3.select(this)
+                     .attr("selected", "true");
+                  //console.log(d3.select(this).attr('rect_translate_x'));
+                     
+                  tooltip.transition()
+                     .duration(200)
+                     .style("opacity", .9);
+                  tooltip
+                  .html(d3.select(this).attr('park_name') + "<br>" 
+                  + "2020 Visitors: " + (d3.select(this).attr('visitors')/1000000).toFixed(1) + "M visitors" + "<br>"
+                  + "2020 Density: " + d3.select(this).attr('density') + " per 1000 acres")
+                     .style('color', d3.select(this).attr('font-color'))
+                     .style("left", /*d3.mouse(this)[0] +*/ "880px")
+                     .style("top", d3.mouse(this)[1] + "px")
+                     .style("background-image", "url(" + url + ")");
+               })
+               .on("mouseleave", function(event, d){
+                  d3.select(this)
+                     .attr("selected", "false");
+                  d3.select(this)
+                  tooltip.transition()
+                  .duration(500)
+                  .style("opacity", 0);
+               })
+
+               
+               //svg_histo.append('rect').attr('width', "10").attr("height", "10").attr("fill", "blue")
+
+               graph = d3.select("body")
+               .append("svg")
+               .attr("id", "BOTTOM")
+               .attr("width", width_histo)
+               .attr("height", height_histo)
+               .attr('transform', 'translate(10,' + bargraph_start + ')')
+
+               graph2 = d3.select("body")
+               .append("svg")
+               .attr("id","TOP")
+               .attr("width", width_histo)
+               .attr("height", height_histo)
+               .attr('transform', 'translate(20,100)')
+
+               var mybar = d3.select("body").append("div")
+               .attr("class", "bargraph_bar")
+               .style("opacity", 0);
+
+               points
+               .on("mouseover", function(event, d) {
+                  //console.log(d3.select(this).attr('park_name'));
+                  //console.log(event);
+                  /*d3.select(this).transition()
+                  .duration(200)
+                  .style("fill", "red");*/
+
+                  mybar.transition()
+                     .duration(200)
+                     .style("opacity", 1);
+                  mybar
+                     .html(" ")
+                     //.style('background', 'yellow')
+                     .style("left",  (18 + Number(d3.select(this).attr('rect_translate_x')) + 'px'))
+                     .style("top",  Number(612) -  Number(d3.select(this).attr('rect_height')) +  'px')
+                     .style("height", Math.round(Number(d3.select(this).attr('rect_height'))) + 'px')
+                     .style('width', '6px');
+                     //.attr("width", "60px");
+                     //.style('color', 'black');                  
+
+                     
+                     //.style("background-image", "url(" + url + ")");
+               })
+               .on("mouseout", function(event, d){
+                  d3.select(this)
+                  .transition()
+                  .duration(200)
+                  //.style("fill", "lightsteelblue");
+
+                  tooltip2.transition()
+                  .duration(500)
+                  .style("opacity", 0);
+
+                  mybar.transition()
+                     .duration(200)
+                     .style("opacity",0);
+                  
+               })
+
+               var bars = graph.selectAll("g").data(data)
+               .attr('width', width_histo)
+               .attr('height', height_histo)
+               //.attr('transform', 'translate(0,-50)')
+               .enter().append("g")
+               //.append('rect').attr('width', "50").attr("height", "50").attr("fill", "blue")
+               .attr("transform", function(d, i) {
+                  return "translate(" + i * bar_width + "," + (150 - scaleylog(Number(d.properties.density_2020) + 0.002)) + ")";
+                  //return "translate(" + i * bar_width + ",0)";
+               })
+               .append("rect").attr("height", function(d) {
+                  return scaleylog(Number(d.properties.density_2020) + 0.002);
+               })
+               .attr("width","10px")
+               .attr("fill", "lightsteelblue")
+               .attr('stroke','white')
+               .attr("park_name", function(d) {
+                  return d.properties.park_name;
+               })
+               .attr('density', function(d) {
+                  return d.properties.density_2020;
+               })
+               .on("mouseover", function(event, d) {
+                  tooltip2.transition()
+                     .duration(100)
+                     .style("opacity", .9);
+                  tooltip2
+                     .html(d3.select(this).attr('park_name') + "<br>" 
+                  + "2020 Density: " + d3.select(this).attr('density') + " per 1000 acres")
+                     .style('background', '#42692f')
+                     .style("left",  d3.event.pageX - 100 + 'px')
+                     .style("top",  height + 218 + 'px')
+                     .style('color', 'white');
+                  d3.select(this)
+                  .transition()
+                  .duration(100)
+                  .style("fill", "black");
+               })
+               .on("mouseout", function(event, d){
+                  d3.select(this)
+                  .transition()
+                  .duration(200)
+                  .style("fill", "lightsteelblue");
+
+                  tooltip2.transition()
+                  .duration(200)
+                  .style("opacity", 0);
+                  
+               })
+             
+
+            });
+
+
+      </script>
    </body>
 </html>
