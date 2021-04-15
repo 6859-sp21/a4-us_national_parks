@@ -1,0 +1,1038 @@
+<html>
+   <head>
+      <head>
+         <title>National Parks</title>
+         <meta charset="utf-8"> 
+         <script type = "text/javascript" src = "https://d3js.org/d3.v4.min.js"></script>
+         <script src="https://unpkg.com/topojson-client@3"></script>
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.js"></script>
+         <style>
+             div.tooltip {
+                 position: absolute;
+                 text-align: center;
+                 width: 408px;
+                 height: 271px;
+                 padding: 0px;
+                 font: 14px sans-serif;
+                 font-weight: 900;
+                 border: 0px;
+                 border-radius: 0px;
+                 pointer-events: none;
+             }
+
+             div.tooltip2 {
+                 position: absolute;
+                 text-align: center;
+                 width: auto;
+                 height: auto;
+                 padding: 2px;
+                 font: 14px sans-serif;
+                 font-weight: 200;
+                 border: 0px;
+                 border-radius: 0px;
+                 pointer-events: none;
+             }
+
+             div.tooltip3 {
+                 position: absolute;
+                 text-align: center;
+                 width: 408px;
+                 height: 90px;
+                 padding: 0px;
+                 font: 14px sans-serif;
+                 font-weight: 900;
+                 border: 0px;
+                 border-radius: 0px;
+                 pointer-events: none;
+             }
+
+             div.bargraph_bar {
+                 position: absolute;
+                 text-align: center;
+                 padding: 2px;
+                 font: 14px sans-serif;
+                 font-weight: 200;
+                 background: black;
+                 border: 0px;
+                 border-radius: 0px;
+                 pointer-events: none;
+             }
+
+             div.bargraph_bar2 {
+                 position: absolute;
+                 text-align: center;
+                 padding: 2px;
+                 font: 14px sans-serif;
+                 font-weight: 200;
+                 background: lightsteelblue;
+                 width: 30px;
+                 border: 0px;
+                 border-radius: 0px;
+                 pointer-events: none;
+             }
+
+             .boundary {
+                fill: none;
+                stroke:black;
+                stroke-linejoin: round;
+             }
+
+             button {
+               position: absolute;
+               top: 45px;
+            }
+
+            .tick {
+               opacity: 1;
+            }             
+
+             .state.ID { fill: #ddc; }
+         </style>
+   </head>
+
+   <body>
+      <h1>National Parks to avoid the Crowds</h1>
+      <button type="button" id = "b1" onclick="instructions_to_top()">Click me for Instructions and to Reset the Map</button>
+      <script src="https://unpkg.com/topojson@3"></script>
+      <script>
+         // Functions to work the buttons. Sometimes the map prints on top of the points and this was the only way I could reverse that
+         d3.selectAll("#b2").attr("left","100px");
+         var rearrange = function() {
+            d3.selectAll(".park_emoji").raise();
+            d3.selectAll(".park_point").raise();
+            d3.selectAll(".boundary").lower();
+            d3.selectAll(".state").lower();
+         }
+
+         var instructions_to_top = function() {
+            d3.selectAll(".park_emoji").raise();
+            d3.selectAll(".park_point").raise();
+            d3.selectAll(".boundary").lower();
+            d3.selectAll(".state").lower();
+            tooltip.transition().duration(0).style("opacity","0");
+            tooltip3.transition().duration(0).style("opacity","0");
+            season_axis_x.transition().duration(0).style("opacity","0");
+            season_axis_y.transition().duration(0).style("opacity","0");
+            d3.selectAll(".bargraph_bar2").transition().duration(0).style("opacity","0");
+            season_title.transition().duration(0).style("opacity","0");
+            tooltip_instruct.transition().duration(200).style("opacity","1");
+            }
+
+            // Define some variables 
+            var width = 1500;
+            var height = 400;
+            var image_top = 65;
+            var image_left = 880;
+            var season_height = 500;
+            var season_start = image_left + 64;
+            var season_width = 60;
+            var season_gap = 20;
+            var width_histo = 860;
+            var height_histo = 150;
+            var bargraph_start = 50;
+            var bar_width = width_histo / 63;
+            var tooltip2_height = 698;
+            var emoji_size = 20;
+
+            // Graph scales
+            const scaleylog = d3.scaleLog().domain([0.001,6800]).range([150,0]);
+            const scaleylog2 = d3.scaleLog().domain([1000,12000000]).range([150,0]);
+            const scaleylog3 = d3.scaleLog().domain([1,5000000]).range([100,0]);
+            const scalex = d3.scaleBand().range([0,860]);
+            const scalex2 = d3.scaleBand().domain(["Winter","Spring","Summer","Fall"]).range([0,320]);
+            
+            // Make some shapes
+            // This will be the park images
+            var tooltip = d3.select("body").append("div")
+               .attr("class", "tooltip")
+               .style("opacity", 0);
+
+            // This will hold the instructions for the visualization
+            var tooltip_instruct = d3.select("body").append("div")
+               .attr("class", "tooltip")
+               .attr("id","instr")
+               .style("opacity",1)
+               .style("left", image_left  + "px")
+               .style("top", image_top + "px")
+               .style('background','lightgray');
+
+            // This one will be details for the bargraphs
+            var tooltip2 = d3.select("body").append("div")
+               .attr("class", "tooltip2")
+               .style("opacity", 0);
+
+            // This one will be details below the park image
+            var tooltip3 = d3.select("body").append("div")
+               .attr("class", "tooltip3")
+               .style("opacity", 0);
+
+            // Now prepare the map
+            var projection = d3.geoAlbersUsa().scale(800).translate([0, 0])
+               .translate([width/4, height/2]);
+            
+            var path = d3.geoPath()
+               .projection(projection)
+
+            // This is where the map will go
+            var svg = d3.select("body").append("svg")
+               .attr("width", width)
+               .attr("height", height);
+            
+            // Let's make a map!
+            // This will be the background with the states and borders
+            d3.json("https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/states.topojson", function(error, us) {
+               data = topojson.feature(us,us.objects.collection).features // load data
+
+               // access the data we want and add it to the path
+               country = svg.selectAll(".collection").data(data)
+                  .enter().append("path")
+                  .attr("fill", "#cefdce")
+                  .attr("class", "state")
+                  .attr("d",path)
+
+               // Same thing but for state boundaries
+               svg.append("path")
+                  .datum(topojson.mesh(us,us.objects.collection))
+                  .attr("d",path)
+                  .attr("class", "boundary");
+            });
+
+            // Now load the parks data
+            d3.json("https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/data_final_sort.topojson", function(error, uk) {
+               data = topojson.feature(uk,uk.objects.collection).features // grab the data
+
+               // First things first, emojis!
+               emoji = svg
+                  .selectAll(".collection").data(data)
+                  .enter()
+                  .append("image")
+                  .attr("class","park_emoji")
+                  .attr('xlink:href', function(d) { // hold on to the appropriate image url
+                     if (d.properties.park_env == 'desert') {
+                        return "https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/cactus_trans2.png";
+                     } else if (d.properties.park_env == 'mountain') {
+                        return "https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/mountain_trans.png";
+                     } else if (d.properties.park_env == 'water') {
+                        return "https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/water_trans.png";
+                     } else {
+                        return "https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/tree_trans.png";
+                     }
+                  })
+                  .attr("height", emoji_size).attr("width", emoji_size)
+                  .attr("x", function(d) {
+                     return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[0] - emoji_size / 2;
+                  })
+                  .attr("y", function(d) {
+                     return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[1] - emoji_size / 2;
+                  });
+               
+               // now we're going to add data points to the map on top of the emojis. They will be invisible. Spoooky...
+               points = svg.selectAll(".collection").data(data)
+                  .enter().append("path")
+                  // store all of the important data about the parks
+                  .attr("id", function(d) { 
+                     return d.properties.park_name;
+                  })
+                  .attr("class", "park_point")
+                  .attr("park_name", function(d) {
+                     return d.properties.park_name;
+                  })
+                  .attr('density', function(d) {
+                     return d.properties.density_2020;
+                  })
+                  .attr("visitors", function(d) {
+                     return d.properties.visitors_2020;
+                  })
+                  .attr("visitors_winter", function(d) {
+                     return d.properties.visitors_winter;
+                  })
+                  .attr("visitors_spring", function(d) {
+                     return d.properties.visitors_spring;
+                  })
+                  .attr("visitors_summer", function(d) {
+                     return d.properties.visitors_summer;
+                  })
+                  .attr("visitors_fall", function(d) {
+                     return d.properties.visitors_fall;
+                  })
+                  .attr('park_env', function(d) {
+                     return d.properties.park_env;
+                  })
+                  .attr('img_name', function(d) { // some weird formatting quirks for the park images
+                     if (d.properties.park_name == 'Acadia NP' || d.properties.park_name == 'Badlands NP' || d.properties.park_name == 'Channel Islands NP'
+                     || d.properties.park_name == 'Cuyahoga Valley NP' || d.properties.park_name == 'Dry Tortugas NP' || d.properties.park_name == 'Katmai NP & PRES') {
+                        var string = d.properties.park_name + ".JPG";
+                     } else {
+                        var string = d.properties.park_name + ".jpg";
+                     }
+                     var string = string.replace(/ /gi, "%20");
+                     return string;
+                  })
+                  .attr('rect_height_den', function(d) { // dimensions and locations for the bar graphs
+                     return (height_histo - scaleylog(Number(d.properties.density_2020) + 0.002));
+                  })
+                  .attr('rect_height_vis', function(d) {
+                     return (height_histo - scaleylog2(Number(d.properties.visitors_2020) + 0.002));
+                  })
+                  .attr('rect_width',"10")
+                  .attr('rect_translate_x', function (d,i) {
+                     return i * bar_width;
+                  })
+                  .attr('rect_translate_y_den', function(d) {
+                     return (150 - scaleylog(Number(d.properties.density_2020) + 0.002));
+                  })
+                  .attr('rect_translate_y_vis', function(d) {
+                     return (150 - scaleylog2(Number(d.properties.visitors_2020) + 0.002));
+                  })
+                  .attr('nps_url', function(d) {
+                     return d.properties.url;
+                  })
+                  .attr('slogan',function(d) {
+                     return d.properties.slogan;
+                  })
+                  .attr("d",path)
+                  .attr("opacity", "0");
+               
+               // Define the mouse events for the park points
+               points
+                  .on("mouseenter", function(event, d) {
+                     var url = 'https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/' + d3.select(this).attr('img_name')
+                     // Show the park image tooltip
+                     tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 1);
+
+                     tooltip
+                        .html(' ')   
+                        .style('color', d3.select(this).attr('font-color'))
+                        .style("left", image_left  + "px")
+                        .style("top", image_top + "px")
+                        .style("background-image", "url(" + url + ")");
+                     
+                     // Show the label beneath the park image tooltip
+                     tooltip3.transition()
+                        .duration(500)
+                        .style("opacity", 1);
+                     
+                     // What color should it be?
+                     if (d3.select(this).attr('park_env') == 'tree') {
+                        var box_color = '#8ee38e';
+                     } else if (d3.select(this).attr('park_env') == 'water') {
+                        var box_color = '#d4f1f9';
+                     } else if (d3.select(this).attr('park_env') == 'desert') {
+                        var box_color = '#ffd074';
+                     } else {
+                        var box_color = '#d9d7d8';
+                     };
+
+                     // Make it that color (and add text)
+                     tooltip3
+                        .html(d3.select(this).attr('park_name') + "<br>" 
+                        + '"' + d3.select(this).attr('slogan') + '"<br>'
+                        + "2020 Visitors: " + (d3.select(this).attr('visitors')/1000000).toFixed(1) + "M visitors" + "<br>"
+                        + "2020 Density: " + d3.select(this).attr('density') + " per 1000 acres")
+                        .style('color', 'black')
+                        .style("left", image_left  + "px")
+                        .style("top", (image_top + 275) + "px")
+                        .style("background",box_color);
+
+                     // Show the seasonality bar graph beneath the image in the stupidest way possible
+                     mybar_winter.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     mybar_winter
+                        .style("left",season_start)
+                        .style("top",480 + Number(scaleylog3(d3.select(this).attr('visitors_winter') + 0.001)))
+                        .style("height",100 - Number(scaleylog3(d3.select(this).attr('visitors_winter') + 0.001)))
+                        .style("width","60px");
+
+                     mybar_spring.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     mybar_spring
+                        .style("left",season_start + season_width + season_gap)
+                        .style("top",480 + Number(scaleylog3(d3.select(this).attr('visitors_spring') + 0.001)))
+                        .style("height",100 - Number(scaleylog3(d3.select(this).attr('visitors_spring') + 0.001)))
+                        .style("width","60px");
+
+                     mybar_summer.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     mybar_summer
+                        .style("left",season_start + 2*season_width + 2*season_gap)
+                        .style("top",480 + Number(scaleylog3(d3.select(this).attr('visitors_summer') + 0.001)))
+                        .style("height",100 - Number(scaleylog3(d3.select(this).attr('visitors_summer') + 0.001)))
+                        .style("width","60px");
+
+                     mybar_fall.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     mybar_fall
+                        .style("left",season_start + 3*season_width + 3*season_gap)
+                        .style("top",480 + Number(scaleylog3(d3.select(this).attr('visitors_fall') + 0.001)))
+                        .style("height",100 - Number(scaleylog3(d3.select(this).attr('visitors_fall') + 0.001)))
+                        .style("width","60px");
+
+                     // And the axes
+                     season_axis_x.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     season_axis_y.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     season_axis_y.selectAll("text").transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     season_title.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     
+                     // Get rid of the instructions tooltip
+                     tooltip_instruct.transition()
+                        .duration(0)
+                        .style("opacity","0");
+                  })
+                  .on("mouseleave", function(event, d){
+                     // grapes
+                  })
+                  .on("click",function(d){
+                     // Open the NPS website on click
+                     window.open(d3.select(this).attr('nps_url'), '_blank')});
+
+               // Prepare for some bargraphs
+               graph = d3.select("body")
+                  .append("svg")
+                  .attr("id", "BOTTOM")
+                  .attr("width", width_histo)
+                  .attr("height", height_histo + 40)
+                  .attr('transform', 'translate(0,' + bargraph_start + ')');
+
+               // Another bargraph
+               graph2 = d3.select("body")
+                  .append("svg")
+                  .attr("id","TOP")
+                  .attr("width", width_histo)
+                  .attr("height", height_histo + 40)
+                  .attr('transform', 'translate(0,100)');
+               
+               // How about another bargraph
+               graph3 = d3.select("body")
+                  .append("svg")
+                  .attr("id","RIGHT")
+                  .attr("width", "408px")
+                  .attr("height", height_histo + 40)
+                  .attr('transform', 'translate(' + 0 + ',' + '-230)');
+               
+               // Pretend that the bargraph fills are changing
+               var mybar = d3.select("body").append("div")
+                  .attr("class", "bargraph_bar")
+                  .style("opacity", 0);
+
+               var mybar2 = d3.select("body").append("div")
+                  .attr("class", "bargraph_bar")
+                  .style("opacity", 0);
+               
+               // Some cool interactivity with circles
+               var circle_out = svg.append('circle')
+                  .style('cx','300')
+                  .style('cy','300')
+                  .attr('r','20')
+                  .attr('fill','none')
+                  .attr('stroke','black')
+                  .attr('stroke-width','2px')
+                  .style('opacity','0');
+
+               var circle_mid = svg.append('circle')
+                  .style('cx','300')
+                  .style('cy','300')
+                  .attr('r','15')
+                  .attr('fill','none')
+                  .attr('stroke','black')
+                  .attr('stroke-width','2px')
+                  .style('opacity','0');
+
+               var circle_in = svg.append('circle')
+                  .style('cx','300')
+                  .style('cy','300')
+                  .attr('r','10')
+                  .attr('fill','none')
+                  .attr('stroke','black')
+                  .attr('stroke-width','2px')
+                  .style('opacity','0');
+
+               // More events for the park points
+               points
+                  .on("mouseover", function(event, d) {
+                     // Show the two floating bars
+                     mybar.transition()
+                        .duration(100)
+                        .style("opacity", 1);
+                     mybar
+                        .html(" ")
+                        .style("left",  (53 + Number(d3.select(this).attr('rect_translate_x')) + 'px'))
+                        .style("top",  Number(696) -  Number(d3.select(this).attr('rect_height_vis')) +  'px')
+                        .style("height", d3.select(this).attr('rect_height_vis') - 4 + 'px')
+                        .style('width', '5px');
+
+                     mybar2.transition()
+                        .duration(100)
+                        .style("opacity", 1);
+                     mybar2
+                        .html(" ")
+                        .style("left",  (53 + Number(d3.select(this).attr('rect_translate_x')) + 'px'))
+                        .style("top",  Number(926) -  Number(d3.select(this).attr('rect_height_den')) +  'px')
+                        .style("height", d3.select(this).attr('rect_height_den') - 4 + 'px')
+                        .style('width', '5px');
+                  })
+                  .on("mouseout", function(event, d){
+                     // On mouseout unshade the bars
+                     d3.select(this)
+                     .transition()
+                     .duration(200)
+
+                     tooltip2.transition()
+                     .duration(500)
+                     .style("opacity", 0);                     
+                  })
+               
+               // Now let's do some bargraphs
+               var bars2 = graph.selectAll("g").data(data) // attatch to the data
+                  .attr('width', width_histo)
+                  .attr('height', height_histo)
+                  .enter().append("g")
+                  // Make some rectangles (https://www.youtube.com/watch?v=lW3I7yz5nVo)
+                  .attr("transform", function(d, i) {
+                     return "translate(" + (45 + i * bar_width) + "," + (30 + scaleylog2(Number(d.properties.visitors_2020) + 0.002)) + ")";
+                  })
+                  .append("rect").attr("height", function(d) {
+                     return (150 - scaleylog2(Number(d.properties.visitors_2020) + 0.002)) + 'px';
+                  })
+                  .attr("width","10px")
+                  .attr("fill", "lightsteelblue")
+                  .attr('stroke','white')
+                  .attr("park_name", function(d) {
+                     return d.properties.park_name;
+                  })
+                  .attr('park_env', function(d) {
+                     return d.properties.park_env;
+                  })
+                  .attr('density', function(d) {
+                     return d.properties.density_2020;
+                  })
+                  .attr('visitors', function(d) {
+                     return d.properties.visitors_2020;
+                  })
+                  .attr("visitors_winter", function(d) {
+                     return d.properties.visitors_winter;
+                  })
+                  .attr("visitors_spring", function(d) {
+                     return d.properties.visitors_spring;
+                  })
+                  .attr("visitors_summer", function(d) {
+                     return d.properties.visitors_summer;
+                  })
+                  .attr("visitors_fall", function(d) {
+                     return d.properties.visitors_fall;
+                  })
+                  .attr('slogan',function(d) {
+                     return d.properties.slogan;
+                  })
+                  .attr("coord_x", function(d) {
+                     return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[0];
+                  })
+                  .attr("coord_y", function(d) {
+                     return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[1];
+                  })
+                  .attr('img_name', function(d) {
+                     if (d.properties.park_name == 'Acadia NP' || d.properties.park_name == 'Badlands NP' || d.properties.park_name == 'Channel Islands NP'
+                     || d.properties.park_name == 'Cuyahoga Valley NP' || d.properties.park_name == 'Dry Tortugas NP' || d.properties.park_name == 'Katmai NP & PRES') {
+                        var string = d.properties.park_name + ".JPG";
+                     } else {
+                        var string = d.properties.park_name + ".jpg";
+                     }
+                     var string = string.replace(/ /gi, "%20");
+                     return string;
+                  })
+                  // bargraph mouse events
+                  .on("mouseover", function(event, d) {
+                     tooltip2.transition() // show the other tooltip
+                        .duration(100)
+                        .style("opacity", .9);
+                     tooltip2 // with some deets
+                        .html(d3.select(this).attr('park_name') + "<br>" +
+                        "2020 Visitors: " + (d3.select(this).attr('visitors')/1000000).toFixed(1) + "M" + "<br>" +
+                        "2020 Density: " + d3.select(this).attr('density') + " per 1000 acres")
+                        .style('background', '#42692f')
+                        .style("left",  d3.event.pageX - 100 + 'px')
+                        .style("top",  tooltip2_height + 'px')
+                        .style('color', 'white');
+                     
+                     tooltip.transition() // Show the first tooltip too because why not!
+                        .duration(500)
+                        .style("opacity", 1);
+                     var url = 'https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/' + d3.select(this).attr('img_name')
+                     tooltip
+                        .html(' ')   
+                        .style("left", image_left  + "px")
+                        .style("top", image_top + "px")
+                        .style("background-image", "url(" + url + ")");
+
+                     // And this tooltip too
+                     tooltip3.transition()
+                        .duration(500)
+                        .style("opacity", 1);
+                     
+                     if (d3.select(this).attr('park_env') == 'tree') {
+                        var box_color = '#8ee38e';
+                     } else if (d3.select(this).attr('park_env') == 'water') {
+                        var box_color = '#d4f1f9';
+                     } else if (d3.select(this).attr('park_env') == 'desert') {
+                        var box_color = '#ffd074';
+                     } else {
+                        var box_color = '#d9d7d8';
+                     };
+
+                     tooltip3
+                        .html(d3.select(this).attr('park_name') + "<br>" 
+                        + '"' + d3.select(this).attr('slogan') + '"<br>' 
+                        + "2020 Visitors: " + (d3.select(this).attr('visitors')/1000000).toFixed(1) + "M visitors" + "<br>"
+                        + "2020 Density: " + d3.select(this).attr('density') + " per 1000 acres")
+                        .style('color', 'black')
+                        .style("left", image_left  + "px")
+                        .style("top", (image_top + 275) + "px")
+                        .style("background",box_color);
+                     
+                     // Don't forget the season bargraph
+                     mybar_winter.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     mybar_winter
+                        .style("left",season_start)
+                        .style("top",480 + Number(scaleylog3(d3.select(this).attr('visitors_winter') + 0.001)))
+                        .style("height",100 - Number(scaleylog3(d3.select(this).attr('visitors_winter') + 0.001)))
+                        .style("width","60px");
+
+                     mybar_spring.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     mybar_spring
+                        .style("left",season_start + season_width + season_gap)
+                        .style("top",480 + Number(scaleylog3(d3.select(this).attr('visitors_spring') + 0.001)))
+                        .style("height",100 - Number(scaleylog3(d3.select(this).attr('visitors_spring') + 0.001)))
+                        .style("width","60px");
+
+                     mybar_summer.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     mybar_summer
+                        .style("left",season_start + 2*season_width + 2*season_gap)
+                        .style("top",480 + Number(scaleylog3(d3.select(this).attr('visitors_summer') + 0.001)))
+                        .style("height",100 - Number(scaleylog3(d3.select(this).attr('visitors_summer') + 0.001)))
+                        .style("width","60px");
+
+                     mybar_fall.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     mybar_fall
+                        .style("left",season_start + 3*season_width + 3*season_gap)
+                        .style("top",480 + Number(scaleylog3(d3.select(this).attr('visitors_fall') + 0.001)))
+                        .style("height",100 - Number(scaleylog3(d3.select(this).attr('visitors_fall') + 0.001)))
+                        .style("width","60px");
+
+                     season_axis_x.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     season_axis_y.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     season_axis_y.selectAll("text").transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     season_title.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     
+                     // Get rid of the interactivity bar when the mouse is here
+                     mybar.transition()
+                        .duration(100)
+                        .style("opacity","0");
+                     mybar2.transition()
+                        .duration(100)
+                        .style('opacity','0');
+                     
+                     // Use those circles
+                     circle_out.style('cx',d3.select(this).attr('coord_x')).style('cy',d3.select(this).attr('coord_y'));
+                     circle_mid.style('cx',d3.select(this).attr('coord_x')).style('cy',d3.select(this).attr('coord_y'));
+                     circle_in.style('cx',d3.select(this).attr('coord_x')).style('cy',d3.select(this).attr('coord_y'));
+                     circle_in.transition()
+                        .duration(150)
+                        .style('opacity','1')
+                        .transition()
+                        .duration(600)
+                        .style('opacity','0')
+                     circle_mid.transition()
+                        .duration(300)
+                        .style('opacity','1')
+                        .transition()
+                        .duration(750)
+                        .style('opacity','0')
+                     circle_out.transition()
+                        .duration(450)
+                        .style('opacity','1')
+                        .transition()
+                        .duration(900)
+                        .style('opacity','0')
+                     
+                     // Make the bar black
+                     d3.select(this)
+                        .transition()
+                        .duration(100)
+                        .style("fill", "black");
+                     
+                     // And get rid of the instructions if they're not gone already
+                     tooltip_instruct.transition()
+                        .duration(0)
+                        .style("opacity","0");
+                  })
+                  // back to blue on mouseout
+                  .on("mouseout", function(event, d){
+                     d3.select(this)
+                     .transition()
+                     .duration(100)
+                     .style("fill", "lightsteelblue");
+
+                     tooltip2.transition()
+                     .duration(200)
+                     .style("opacity", 0);
+                  });
+
+               // Make axes for this new bargraph
+               graph.append('g')
+                  .attr('class','xaxis')
+                  .attr('transform', 'translate(40,179)')
+                  .call(d3.axisBottom(scalex).tickSize(0));
+
+               graph.append('g')
+                  .attr('class','yaxis')
+                  .attr('transform','translate(40,29)')
+                  .call(d3.axisLeft(scaleylog2).ticks(4).tickSize(0))
+                  .append('text')
+                     .attr('transform','translate(-130,40) rotate(-90)')
+                     .attr('text-anchor', 'end')
+                     .attr('fill', 'black')
+                     .attr('font-size', '12px')
+                     .attr('font-weight', 'bold')
+                     .attr('x', 0)
+                     .attr('y', 100)
+                     .text('Total Visitors (log)');
+               
+               // Title
+               graph.append('text')
+                  .attr('transform','translate(0,0)')
+                  .attr('text-anchor','center')
+                  .attr('fill','black')
+                  .attr('font-size', '20px')
+                  .attr('font-weight', 'bold')
+                  .attr('x', width_histo/2 - 90)
+                  .attr('y', 25)
+                  .text('2020 Total Visitors by Park');
+               
+               // And do it all again for the last bar graph
+               var bars = graph2.selectAll("g").data(data)
+                  .attr('width', width_histo)
+                  .attr('height', height_histo)
+                  .enter().append("g")
+                  .attr("transform", function(d, i) {
+                     return "translate(" + (45 + i * bar_width) + "," + (20 + scaleylog(Number(d.properties.density_2020) + 0.002)) + ")";
+                  })
+                  .append("rect").attr("height", function(d) {
+                     return (height_histo - scaleylog(Number(d.properties.density_2020) + 0.002)) + 'px';
+                  })
+                  .attr("width","10px")
+                  .attr("fill", "lightsteelblue")
+                  .attr('stroke','white')
+                  .attr("park_name", function(d) {
+                     return d.properties.park_name;
+                  })
+                  .attr('park_env', function(d) {
+                     return d.properties.park_env;
+                  })
+                  .attr('density', function(d) {
+                     return d.properties.density_2020;
+                  })
+                  .attr('visitors', function(d) {
+                     return d.properties.visitors_2020;
+                  })
+                  .attr("visitors_winter", function(d) {
+                     return d.properties.visitors_winter;
+                  })
+                  .attr("visitors_spring", function(d) {
+                     return d.properties.visitors_spring;
+                  })
+                  .attr("visitors_summer", function(d) {
+                     return d.properties.visitors_summer;
+                  })
+                  .attr("visitors_fall", function(d) {
+                     return d.properties.visitors_fall;
+                  })
+                  .attr('slogan',function(d) {
+                     return d.properties.slogan;
+                  })
+                  .attr("coord_x", function(d) {
+                     return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[0];
+                  })
+                  .attr("coord_y", function(d) {
+                     return projection([d.geometry.coordinates[0],d.geometry.coordinates[1]])[1];
+                  })
+                  .attr('img_name', function(d) {
+                     if (d.properties.park_name == 'Acadia NP' || d.properties.park_name == 'Badlands NP' || d.properties.park_name == 'Channel Islands NP'
+                     || d.properties.park_name == 'Cuyahoga Valley NP' || d.properties.park_name == 'Dry Tortugas NP' || d.properties.park_name == 'Katmai NP & PRES') {
+                        var string = d.properties.park_name + ".JPG";
+                     } else {
+                        var string = d.properties.park_name + ".jpg";
+                     }
+                     var string = string.replace(/ /gi, "%20");
+                     return string;
+                  })
+                  .on("mouseover", function(event, d) {
+                     tooltip2.transition()
+                        .duration(100)
+                        .style("opacity", .9);
+                     tooltip2
+                     .html(d3.select(this).attr('park_name') + "<br>" +
+                        "2020 Visitors: " + (d3.select(this).attr('visitors')/1000000).toFixed(1) + "M" + "<br>" +
+                        "2020 Density: " + d3.select(this).attr('density') + " per 1000 acres")
+                        .style('background', '#42692f')
+                        .style("left",  d3.event.pageX - 100 + 'px')
+                        .style("top",  tooltip2_height + 'px')
+                        .style('color', 'white');
+
+                     tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 1);
+                     var url = 'https://raw.githubusercontent.com/6859-sp21/a4-us_national_parks/main/' + d3.select(this).attr('img_name')
+                     tooltip
+                        .html(' ')   
+                        .style("left", image_left  + "px")
+                        .style("top", image_top + "px")
+                        .style("background-image", "url(" + url + ")");
+
+                     tooltip3.transition()
+                        .duration(500)
+                        .style("opacity", 1);
+                     
+                     if (d3.select(this).attr('park_env') == 'tree') {
+                        var box_color = '#8ee38e';
+                     } else if (d3.select(this).attr('park_env') == 'water') {
+                        var box_color = '#d4f1f9';
+                     } else if (d3.select(this).attr('park_env') == 'desert') {
+                        var box_color = '#ffd074';
+                     } else {
+                        var box_color = '#d9d7d8';
+                     };
+
+                     tooltip3
+                        .html(d3.select(this).attr('park_name') + "<br>" 
+                        + '"' + d3.select(this).attr('slogan') + '"<br>' 
+                        + "2020 Visitors: " + (d3.select(this).attr('visitors')/1000000).toFixed(1) + "M visitors" + "<br>"
+                        + "2020 Density: " + d3.select(this).attr('density') + " per 1000 acres")
+                        .style('color', 'black')
+                        .style("left", image_left  + "px")
+                        .style("top", (image_top + 275) + "px")
+                        .style("background",box_color);
+
+                     mybar_winter.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     mybar_winter
+                        .style("left",season_start)
+                        .style("top",480 + Number(scaleylog3(d3.select(this).attr('visitors_winter') + 0.001)))
+                        .style("height",100 - Number(scaleylog3(d3.select(this).attr('visitors_winter') + 0.001)))
+                        .style("width","60px"); 
+
+                     mybar_spring.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     mybar_spring
+                        .style("left",season_start + season_width + season_gap)
+                        .style("top",480 + Number(scaleylog3(d3.select(this).attr('visitors_spring') + 0.001)))
+                        .style("height",100 - Number(scaleylog3(d3.select(this).attr('visitors_spring') + 0.001)))
+                        .style("width","60px");
+
+                     mybar_summer.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     mybar_summer
+                        .style("left",season_start + 2*season_width + 2*season_gap)
+                        .style("top",480 + Number(scaleylog3(d3.select(this).attr('visitors_summer') + 0.001)))
+                        .style("height",100 - Number(scaleylog3(d3.select(this).attr('visitors_summer') + 0.001)))
+                        .style("width","60px");
+
+                     mybar_fall.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     mybar_fall
+                        .style("left",season_start + 3*season_width + 3*season_gap)
+                        .style("top",480 + Number(scaleylog3(d3.select(this).attr('visitors_fall') + 0.001)))
+                        .style("height",100 - Number(scaleylog3(d3.select(this).attr('visitors_fall') + 0.001)))
+                        .style("width","60px");
+
+                     season_axis_x.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     season_axis_y.transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     season_axis_y.selectAll("text").transition()
+                        .duration(200)
+                        .style("opacity","1");
+                     season_title.transition()
+                        .duration(200)
+                        .style("opacity","1");
+
+                     mybar.transition()
+                        .duration(100)
+                        .style("opacity",'0');
+                     mybar2.transition()
+                        .duration(100)
+                        .style("opacity",'0');
+                     d3.select(this)
+                     .transition()
+                     .duration(100)
+                     .style("fill", "black");
+                     circle_out.style('cx',d3.select(this).attr('coord_x')).style('cy',d3.select(this).attr('coord_y'));
+                     circle_mid.style('cx',d3.select(this).attr('coord_x')).style('cy',d3.select(this).attr('coord_y'));
+                     circle_in.style('cx',d3.select(this).attr('coord_x')).style('cy',d3.select(this).attr('coord_y'));
+                     circle_in.transition()
+                        .duration(150)
+                        .style('opacity','1')
+                        .transition()
+                        .duration(600)
+                        .style('opacity','0')
+                     circle_mid.transition()
+                        .duration(300)
+                        .style('opacity','1')
+                        .transition()
+                        .duration(750)
+                        .style('opacity','0')
+                     circle_out.transition()
+                        .duration(450)
+                        .style('opacity','1')
+                        .transition()
+                        .duration(900)
+                        .style('opacity','0')
+                  })
+                  .on("mouseout", function(event, d){
+                     d3.select(this)
+                     .transition()
+                     .duration(100)
+                     .style("fill", "lightsteelblue");
+
+                     tooltip2.transition()
+                     .duration(200)
+                     .style("opacity", 0);
+
+                     tooltip_instruct.transition()
+                        .duration(0)
+                        .style("opacity","0");
+                  })
+
+               graph2.append('g')
+               .attr('class','xaxis')
+               .attr('transform', 'translate(40,170)')
+               .call(d3.axisBottom(scalex).tickSize(0));
+
+               graph2.append('g')
+               .attr('class','yaxis')
+               .attr('transform','translate(40,19)')
+               .call(d3.axisLeft(scaleylog).ticks(4).tickSize(0))
+               .append('text')
+                  .attr('transform','translate(-130,0) rotate(-90)')
+                  .attr('text-anchor', 'end')
+                  .attr('fill', 'black')
+                  .attr('font-size', '12px')
+                  .attr('font-weight', 'bold')
+                  .attr('x', 0)
+                  .attr('y', 100)
+                  .text('Visitors / 1000 acres (log)');
+               
+               graph2.append('text')
+                  .attr('transform','translate(0,0)')
+                  .attr('text-anchor','center')
+                  .attr('fill','black')
+                  .attr('font-size', '20px')
+                  .attr('font-weight', 'bold')
+                  .attr('x', width_histo/2 - 170)
+                  .attr('y', 15)
+                  .text('2020 Visitor Density (Visitors/1000 acres) by Park');
+               
+               // Define shapes for the seasonality bargraph
+               var mybar_winter = d3.select("body").append("div")
+                  .attr("class", "bargraph_bar2")
+                  .style("opacity", 0);
+               
+               var mybar_spring = d3.select("body").append("div")
+                  .attr("class", "bargraph_bar2")
+                  .style("opacity", 0);
+               
+               var mybar_summer = d3.select("body").append("div")
+                  .attr("class", "bargraph_bar2")
+                  .style("opacity", 0);
+               
+               var mybar_fall = d3.select("body").append("div")
+                  .attr("class", "bargraph_bar2")
+                  .style("opacity", 0);
+               
+               // And axes
+               season_axis_x = graph3.append('g')
+                  .attr('class','xaxis')
+                  .attr('transform', 'translate(67,158)')
+                  .call(d3.axisBottom(scalex2).ticks(4).tickSize(0))
+                  .style("opacity",0);
+
+               season_axis_y = graph3.append('g')
+                  .attr('class','yaxis')
+                  .attr('transform','translate(60,57)')
+                  .call(d3.axisLeft(scaleylog3).ticks(4).tickSize(0))
+                  .style("opacity",0);
+
+               season_axis_y.append('text')
+                  .attr('transform','translate(-130,40) rotate(-90)')
+                  .attr('text-anchor', 'end')
+                  .attr('fill', 'black')
+                  .attr('font-size', '12px')
+                  .attr('font-weight', 'bold')
+                  .attr('x', 45)
+                  .attr('y', 100)
+                  .text('Total Visitors (log)')
+                  .style('opacity',0);
+
+               season_title = graph3.append('text')
+                  .attr('transform','translate(0,0)')
+                  .attr('text-anchor','center')
+                  .attr('fill','black')
+                  .attr('font-size', '20px')
+                  .attr('font-weight', 'bold')
+                  .attr('x', 90)
+                  .attr('y', 25)
+                  .style("opacity",0)
+                  .text('2020 Total Visitors by Season');
+               
+               // And a nice box for instructions
+               tooltip_instruct
+                  .html("INSTRUCTIONS <br>")
+                  .style('font-size','22px');
+               tooltip_instruct
+                  .append('text').text("Explore the map and graphs to find your next national park adventure! " + 
+                  "Hover over points on the map and bar graphs (all graphs are plotted using a logarithmic scale) to see details. " +
+                  "Click on points to visit NPS website. Click on the button if the map is obscuring the points and to return to these instructions at any time. " + 
+                  "All data from National Park Service Website. Images from google maps.")
+                  .style('font-weight','normal')
+                  .style('font-size','14px');
+
+            });           
+            // Wow, we're done!
+
+      </script>
+   </body>
+</html>
