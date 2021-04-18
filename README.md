@@ -2,7 +2,8 @@ Readme File for 6.859 Assignment 4 by Shane Weisberg: National Parks to Avoid th
 
 Usability:
 Important Note: Works best on chrome.
-If the map is on top of the points, click the button and it will be fixed. Sorry.
+Update: If the layout seems off (axes and plot title in weird places), try zooming out and refreshing. Clearly some issue with the the absolute vs. relative positions. Something to work on...
+Note: If the map is on top of the points, click the button and it will be fixed. Sorry.
 
 Instructions:
 Explore the map and graphs to find your next national park adventure!
